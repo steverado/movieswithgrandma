@@ -1,12 +1,73 @@
-/* Self-host: add sf-hollywood-hills.woff2 (or .woff / .ttf) under public/fonts/ */
+/* ShyFonts SF Hollywood Hills — public/fonts/ (Readme.txt for terms) */
 @font-face {
   font-family: 'SF Hollywood Hills';
-  src:
-    url('/fonts/sf-hollywood-hills.woff2') format('woff2'),
-    url('/fonts/sf-hollywood-hills.woff') format('woff'),
-    url('/fonts/sf-hollywood-hills.ttf') format('truetype');
-  font-weight: normal;
+  src: url('/fonts/SF Hollywood Hills.ttf') format('truetype');
+  font-weight: 400;
   font-style: normal;
+  font-stretch: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src: url('/fonts/SF Hollywood Hills Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-stretch: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src: url('/fonts/SF Hollywood Hills Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-stretch: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src: url('/fonts/SF Hollywood Hills Bold Italic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-stretch: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src: url('/fonts/SF Hollywood Hills Condensed.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: condensed;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src: url('/fonts/SF Hollywood Hills Condensed Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-stretch: condensed;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src: url('/fonts/SF Hollywood Hills Extended.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-stretch: expanded;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src: url('/fonts/SF Hollywood Hills Extended Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-stretch: expanded;
   font-display: swap;
 }
 
