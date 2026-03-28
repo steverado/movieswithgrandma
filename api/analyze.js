@@ -1,7 +1,10 @@
 import { assertRateLimit } from './lib/rateLimit.js'
 import { getJsonBody } from './lib/parseBody.js'
 import { analyzeMovie } from '../src/lib/claude/analyzeMovie.js'
-import { extractJSONString } from '../src/lib/claude/extractJSON.js'
+import {
+  extractJSONString,
+  parseStructuredJsonFromModelText,
+} from '../src/lib/claude/extractJSON.js'
 
 /** Vercel also reads this for the Node bundle (along with vercel.json). */
 export const maxDuration = 300
@@ -123,7 +126,7 @@ async function handleRequest(req, res) {
     const jsonText = extractJSONString(message)
     let parsed = null
     try {
-      parsed = JSON.parse(jsonText)
+      parsed = parseStructuredJsonFromModelText(jsonText)
     } catch {
       return sendJson(res, 502, {
         ok: false,

@@ -16,16 +16,14 @@ import { analyzeMovieApiUrl } from './apiBase.js'
  * >}
  */
 async function runViaClientAnthropic(movieTitle, apiKey) {
-  const [{ analyzeMovie }, { extractJSONString }] = await Promise.all([
-    import('./claude/analyzeMovie.js'),
-    import('./claude/extractJSON.js'),
-  ])
+  const [{ analyzeMovie }, { extractJSONString, parseStructuredJsonFromModelText }] =
+    await Promise.all([import('./claude/analyzeMovie.js'), import('./claude/extractJSON.js')])
   const message = await analyzeMovie(apiKey, movieTitle)
   const jsonText = extractJSONString(message)
 
   let parsed = null
   try {
-    parsed = JSON.parse(jsonText)
+    parsed = parseStructuredJsonFromModelText(jsonText)
   } catch {
     return {
       ok: false,
