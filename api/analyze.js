@@ -2,6 +2,9 @@ import { assertRateLimit } from './lib/rateLimit.js'
 import { analyzeMovie } from '../src/lib/claude/analyzeMovie.js'
 import { extractJSONString } from '../src/lib/claude/extractJSON.js'
 
+/** Vercel also reads this for the Node bundle (along with vercel.json). */
+export const maxDuration = 300
+
 const MAX_TITLE_LEN = 160
 
 /**
@@ -12,6 +15,7 @@ const MAX_TITLE_LEN = 160
 function sendJson(res, status, body) {
   res.statusCode = status
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
   res.end(JSON.stringify(body))
 }
 
@@ -79,6 +83,7 @@ export default async function handler(req, res) {
 async function handleRequest(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Allow', 'POST, OPTIONS')
+    res.setHeader('Cache-Control', 'no-store')
     res.statusCode = 204
     return res.end()
   }
@@ -124,6 +129,12 @@ async function handleRequest(req, res) {
     if (code === 'RATE_LIMITED') {
       res.setHeader('Retry-After', '60')
       return sendJson(res, 429, { ok: false, error: /** @type {Error} */ (e).message })
+    }
+    if (code === 'RATE_LIMIT_TIMEOUT') {
+      return sendJson(res, 503, {
+        ok: false,
+        error: 'Rate-limit check timed out. Try again in a few seconds.',
+      })
     }
     const msg = e instanceof Error ? e.message : String(e)
     return sendJson(res, 500, { ok: false, error: msg })

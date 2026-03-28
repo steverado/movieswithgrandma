@@ -44,7 +44,20 @@ export async function assertRateLimit(identifier) {
     return null
   }
 
-  const { success, reset } = await rl.limit(identifier)
+  const limitMs = Math.min(15000, Math.max(3000, parseInt(process.env.RATE_LIMIT_REDIS_TIMEOUT_MS || '8000', 10)))
+
+  const result = await Promise.race([
+    rl.limit(identifier),
+    new Promise((_, reject) => {
+      setTimeout(() => {
+        reject(
+          Object.assign(new Error('Redis rate limit timeout'), { code: 'RATE_LIMIT_TIMEOUT' }),
+        )
+      }, limitMs)
+    }),
+  ])
+
+  const { success, reset } = /** @type {{ success: boolean, reset: number }} */ (result)
   if (!success) {
     const err = new Error('Too many searches. Try again in a minute.')
     err.code = 'RATE_LIMITED'

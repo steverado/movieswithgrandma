@@ -6,6 +6,6 @@ export const CLAUDE_MODEL = 'claude-sonnet-4-20250514'
 export const WEB_SEARCH_TOOL = {
   type: 'web_search_20250305',
   name: 'web_search',
-  max_uses: 10,
+  max_uses: 7,
   allowed_domains: ['imdb.com'],
 }

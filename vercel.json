@@ -5,7 +5,8 @@
   "outputDirectory": "dist",
   "functions": {
     "api/analyze.js": {
-      "maxDuration": 60,
+      "maxDuration": 300,
+      "memory": 1024,
       "includeFiles": "src/lib/**"
     }
   }
