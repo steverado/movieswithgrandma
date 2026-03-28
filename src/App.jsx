@@ -1,4 +1,8 @@
 import { useCallback, useState } from 'react'
+import {
+  getCachedMovieResult,
+  setCachedMovieResult,
+} from './lib/cache/movieResultCache.js'
 import { analyzeMovie } from './lib/claude/analyzeMovie.js'
 import { extractJSONString } from './lib/claude/extractJSON.js'
 import './App.css'
@@ -14,6 +18,7 @@ export default function App() {
   const [error, setError] = useState(null)
   const [lastRaw, setLastRaw] = useState(null)
   const [lastParsed, setLastParsed] = useState(null)
+  const [fromCache, setFromCache] = useState(false)
   const [customTitle, setCustomTitle] = useState('')
 
   const runStep1 = useCallback(async (movieTitle) => {
@@ -26,8 +31,25 @@ export default function App() {
     setError(null)
     setLastRaw(null)
     setLastParsed(null)
+    setFromCache(false)
 
     try {
+      const cached = getCachedMovieResult(movieTitle)
+      if (cached) {
+        setFromCache(true)
+        console.log('[Step1] cache hit — no API call:', movieTitle)
+        console.log('[Step1] cached at:', new Date(cached.storedAt).toISOString())
+        console.log('[Step1] parsed:', cached.parsed)
+        const p = cached.parsed
+        console.log(
+          '[Step1] raw_descriptions count:',
+          Array.isArray(p?.raw_descriptions) ? p.raw_descriptions.length : 'n/a',
+        )
+        setLastRaw({ cached: true, jsonText: cached.jsonText })
+        setLastParsed(cached.parsed)
+        return
+      }
+
       const message = await analyzeMovie(key, movieTitle)
       const jsonText = extractJSONString(message)
 
@@ -43,6 +65,9 @@ export default function App() {
           '[Step1] raw_descriptions count:',
           Array.isArray(parsed?.raw_descriptions) ? parsed.raw_descriptions.length : 'n/a',
         )
+        if (parsed !== null && typeof parsed === 'object') {
+          setCachedMovieResult(movieTitle, { parsed, jsonText })
+        }
       } catch (e) {
         console.warn('[Step1] JSON.parse failed:', e)
       }
@@ -65,7 +90,8 @@ export default function App() {
       <h1>Step 1 — pipeline check</h1>
       <p className="hint">
         Open DevTools → Console. Run a test and confirm <code>raw_descriptions</code> look like real
-        IMDb Parent&apos;s Guide lines (not generic filler).
+        IMDb Parent&apos;s Guide lines (not generic filler). Repeat searches for the same title use a{' '}
+        <strong>browser cache</strong> (30-day TTL, up to 25 titles) so you don&apos;t burn credits.
       </p>
 
       {!hasKey && (
@@ -103,6 +129,10 @@ export default function App() {
 
       {busy && <p className="status">Calling Claude (web search)…</p>}
       {error && <pre className="err">{error}</pre>}
+
+      {lastParsed && fromCache && (
+        <p className="cache-note">Loaded from this browser&apos;s cache — no API call.</p>
+      )}
 
       {lastParsed && (
         <section className="result">

@@ -62,6 +62,18 @@ button:disabled {
   margin: 0 0 0.75rem;
 }
 
+.cache-note {
+  font-size: 0.8125rem;
+  margin: 0 0 0.75rem;
+  color: #15803d;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cache-note {
+    color: #86efac;
+  }
+}
+
 .err,
 .json {
   margin: 0;
