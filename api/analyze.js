@@ -55,6 +55,28 @@ function clientIp(req) {
  * @param {import('http').ServerResponse} res
  */
 export default async function handler(req, res) {
+  try {
+    await handleRequest(req, res)
+  } catch (err) {
+    console.error('[api/analyze] unhandled', err)
+    if (!res.writableEnded) {
+      try {
+        sendJson(res, 500, {
+          ok: false,
+          error: 'Server error. Open Vercel → this deployment → Functions / Logs for details.',
+        })
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+
+/**
+ * @param {import('http').IncomingMessage} req
+ * @param {import('http').ServerResponse} res
+ */
+async function handleRequest(req, res) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Allow', 'POST, OPTIONS')
     res.statusCode = 204
@@ -103,7 +125,8 @@ export default async function handler(req, res) {
       res.setHeader('Retry-After', '60')
       return sendJson(res, 429, { ok: false, error: /** @type {Error} */ (e).message })
     }
-    throw e
+    const msg = e instanceof Error ? e.message : String(e)
+    return sendJson(res, 500, { ok: false, error: msg })
   }
 
   try {
