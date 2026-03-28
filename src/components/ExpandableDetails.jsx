@@ -1,11 +1,5 @@
 import { useState } from 'react'
-
-function formatFlags(flags) {
-  if (!Array.isArray(flags) || flags.length === 0) return ''
-  return flags
-    .map((f) => String(f).replaceAll('_', ' '))
-    .join(', ')
-}
+import { resolveContentFlagsForDisplay } from '../lib/flagLabels.js'
 
 /**
  * @param {{
@@ -16,6 +10,7 @@ function formatFlags(flags) {
  */
 export default function ExpandableDetails({ contentFlags, longestSceneEstimate, rawDescriptions }) {
   const [open, setOpen] = useState(false)
+  const flagItems = resolveContentFlagsForDisplay(contentFlags)
 
   return (
     <div className="expandable-details">
@@ -29,11 +24,17 @@ export default function ExpandableDetails({ contentFlags, longestSceneEstimate, 
       </button>
       {open && (
         <div className="expandable-details__panel">
-          {formatFlags(contentFlags) && (
-            <p className="expandable-details__line">
-              <span className="expandable-details__label">FLAGS: </span>
-              {formatFlags(contentFlags)}
-            </p>
+          {flagItems.length > 0 && (
+            <div className="expandable-details__flags">
+              {flagItems.map(({ key, name, description }) => (
+                <div key={key} className="expandable-details__flag">
+                  <div className="expandable-details__flag-name">{name}</div>
+                  {description ? (
+                    <div className="expandable-details__flag-desc">{description}</div>
+                  ) : null}
+                </div>
+              ))}
+            </div>
           )}
           {longestSceneEstimate && (
             <p className="expandable-details__line">
