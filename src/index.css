@@ -1,3 +1,15 @@
+/* Self-host: add sf-hollywood-hills.woff2 (or .woff / .ttf) under public/fonts/ */
+@font-face {
+  font-family: 'SF Hollywood Hills';
+  src:
+    url('/fonts/sf-hollywood-hills.woff2') format('woff2'),
+    url('/fonts/sf-hollywood-hills.woff') format('woff'),
+    url('/fonts/sf-hollywood-hills.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --bg: #000000;
   --text: #ffffff;
@@ -5,6 +17,7 @@
   --input-bg: #ffffff;
   --input-text: #111111;
   --imdb-yellow: #f5c518;
+  --font-app: 'SF Hollywood Hills', Impact, 'Arial Black', sans-serif;
 }
 
 *,
@@ -14,7 +27,7 @@
 }
 
 * {
-  font-family: 'Creepster', Impact, 'Arial Black', sans-serif;
+  font-family: var(--font-app);
   text-transform: uppercase;
   color: var(--text);
   background-color: transparent;
