@@ -1,0 +1,24 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.45;
+  color: #111;
+  background: #fafafa;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    color: #e8e8ec;
+    background: #111;
+  }
+}
