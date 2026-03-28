@@ -30,14 +30,22 @@ async function createMessage(apiKey, messages) {
     tools: [WEB_SEARCH_TOOL],
   }
 
+  /** Browser-only header; never send the key from the client in production. */
+  const isBrowser =
+    typeof globalThis !== 'undefined' && typeof globalThis.window !== 'undefined'
+
+  const headers = {
+    'content-type': 'application/json',
+    'x-api-key': apiKey,
+    'anthropic-version': ANTHROPIC_VERSION,
+  }
+  if (isBrowser) {
+    headers['anthropic-dangerous-direct-browser-access'] = 'true'
+  }
+
   const res = await fetch(ANTHROPIC_MESSAGES_URL, {
     method: 'POST',
-    headers: {
-      'content-type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': ANTHROPIC_VERSION,
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
+    headers,
     body: JSON.stringify(body),
   })
 

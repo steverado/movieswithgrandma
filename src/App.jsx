@@ -6,10 +6,6 @@ import AboutPage from './pages/AboutPage.jsx'
 import HomePage from './pages/HomePage.jsx'
 import './App.css'
 
-function getApiKey() {
-  return import.meta.env.VITE_ANTHROPIC_API_KEY?.trim() || ''
-}
-
 export default function App() {
   const [currentPage, setCurrentPage] = useState(/** @type {'home' | 'about'} */ ('home'))
   const [query, setQuery] = useState('')
@@ -25,22 +21,12 @@ export default function App() {
     const q = query.trim()
     if (!q) return
 
-    const apiKey = getApiKey()
-    if (!apiKey) {
-      setError(
-        'ADD VITE_ANTHROPIC_API_KEY TO YOUR .ENV FILE AND RESTART THE DEV SERVER (npm run dev).',
-      )
-      setStatus('error')
-      setResult(null)
-      return
-    }
-
     setStatus('loading')
     setError(null)
     setResult(null)
 
     try {
-      const out = await runMovieAnalysis(q, apiKey)
+      const out = await runMovieAnalysis(q)
       if (!out.ok) {
         setError(out.error)
         setStatus('error')
