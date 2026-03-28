@@ -1,24 +1,32 @@
+:root {
+  --bg: #000000;
+  --text: #ffffff;
+  --text-muted: #999999;
+  --input-bg: #ffffff;
+  --input-text: #111111;
+  --imdb-yellow: #f5c518;
+}
+
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
+* {
+  font-family: 'Creepster', Impact, 'Arial Black', sans-serif;
+  text-transform: uppercase;
+  color: var(--text);
+  background-color: transparent;
+  letter-spacing: 0.06em;
+}
+
 body {
   margin: 0;
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  line-height: 1.45;
-  color: #111;
-  background: #fafafa;
+  background-color: var(--bg);
+  min-height: 100vh;
 }
 
 #root {
   min-height: 100vh;
-}
-
-@media (prefers-color-scheme: dark) {
-  body {
-    color: #e8e8ec;
-    background: #111;
-  }
 }
