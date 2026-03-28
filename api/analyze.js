@@ -1,4 +1,5 @@
 import { assertRateLimit } from './lib/rateLimit.js'
+import { getJsonBody } from './lib/parseBody.js'
 import { analyzeMovie } from '../src/lib/claude/analyzeMovie.js'
 import { extractJSONString } from '../src/lib/claude/extractJSON.js'
 
@@ -17,30 +18,6 @@ function sendJson(res, status, body) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
   res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate')
   res.end(JSON.stringify(body))
-}
-
-/**
- * @param {import('http').IncomingMessage} req
- * @returns {Promise<Record<string, unknown>>}
- */
-function readJsonBody(req) {
-  return new Promise((resolve, reject) => {
-    const chunks = []
-    req.on('data', (c) => chunks.push(c))
-    req.on('end', () => {
-      try {
-        const raw = Buffer.concat(chunks).toString('utf8')
-        if (!raw.trim()) {
-          resolve({})
-          return
-        }
-        resolve(JSON.parse(raw))
-      } catch (e) {
-        reject(e)
-      }
-    })
-    req.on('error', reject)
-  })
 }
 
 function clientIp(req) {
@@ -104,9 +81,10 @@ async function handleRequest(req, res) {
 
   let body
   try {
-    body = await readJsonBody(req)
-  } catch {
-    return sendJson(res, 400, { ok: false, error: 'Invalid JSON body' })
+    body = await getJsonBody(req)
+  } catch (e) {
+    const msg = e instanceof Error && e.message === 'INVALID_JSON' ? 'Invalid JSON body' : 'Invalid request body'
+    return sendJson(res, 400, { ok: false, error: msg })
   }
 
   const titleRaw = typeof body.title === 'string' ? body.title : ''
