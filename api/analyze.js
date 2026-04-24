@@ -117,6 +117,12 @@ async function handleRequest(req, res) {
         error: 'Rate-limit check timed out. Try again in a few seconds.',
       })
     }
+    if (code === 'RATE_LIMIT_REDIS_ERROR') {
+      return sendJson(res, 503, {
+        ok: false,
+        error: /** @type {Error} */ (e).message,
+      })
+    }
     const msg = e instanceof Error ? e.message : String(e)
     return sendJson(res, 500, { ok: false, error: msg })
   }
