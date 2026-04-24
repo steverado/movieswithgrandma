@@ -8,6 +8,7 @@
     "dev:vercel": "npx vercel dev",
     "build": "vite build",
     "lint": "eslint .",
+    "diag:api": "node scripts/diag-api.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
