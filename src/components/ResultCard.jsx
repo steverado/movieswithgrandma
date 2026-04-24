@@ -30,7 +30,6 @@ export default function ResultCard({ result }) {
         <p className="result-card__summary">{summary}</p>
       ) : null}
       <ExpandableDetails
-        contentFlags={/** @type {string[]} */ (result.content_flags)}
         longestSceneEstimate={/** @type {string} */ (result.longest_scene_estimate)}
         rawDescriptions={/** @type {string[]} */ (result.raw_descriptions)}
       />
