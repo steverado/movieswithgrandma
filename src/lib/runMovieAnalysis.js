@@ -5,6 +5,42 @@ import {
 import { analyzeMovieApiUrl } from './apiBase.js'
 
 /**
+ * @param {string} url
+ * @param {RequestInit} init
+ * @param {{ retries?: number, backoffMs?: number }} [opts]
+ * @returns {Promise<Response>}
+ */
+async function fetchWithRetry(url, init, opts = {}) {
+  const retries = opts.retries ?? 1
+  const backoffMs = opts.backoffMs ?? 1600
+  let lastErr = /** @type {unknown} */ (null)
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await fetch(url, { ...init, cache: 'no-store' })
+    } catch (e) {
+      lastErr = e
+      if (attempt < retries) {
+        await new Promise((r) => setTimeout(r, backoffMs))
+      }
+    }
+  }
+  throw lastErr
+}
+
+function humanizeFetchError(err) {
+  const name = err instanceof Error ? err.name : ''
+  const msg = err instanceof Error ? err.message : String(err)
+  const combined = `${name} ${msg}`.toLowerCase()
+  if (combined.includes('failed to fetch') || combined.includes('networkerror')) {
+    return 'NETWORK BLIP — COULDN’T REACH THE SERVER. CHECK YOUR CONNECTION AND TRY AGAIN. IF IT KEEPS HAPPENING, THE SEARCH MAY BE TIMING OUT; WAIT A MINUTE AND RETRY.'
+  }
+  if (combined.includes('aborted') || combined.includes('abort')) {
+    return 'REQUEST WAS CANCELLED. TRY AGAIN.'
+  }
+  return msg || 'SOMETHING WENT WRONG. TRY AGAIN.'
+}
+
+/**
  * Dev-only: call Anthropic from the browser when VITE_ANTHROPIC_API_KEY is set.
  * Dynamic import keeps Anthropic client code out of production bundles.
  *
@@ -72,11 +108,24 @@ export async function runMovieAnalysis(movieTitle) {
     return runViaClientAnthropic(movieTitle, devKey)
   }
 
-  const res = await fetch(analyzeMovieApiUrl(), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title: movieTitle }),
-  })
+  const url = analyzeMovieApiUrl()
+  let res
+  try {
+    res = await fetchWithRetry(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({ title: movieTitle }),
+      },
+      { retries: 1, backoffMs: 1800 },
+    )
+  } catch (e) {
+    return { ok: false, error: humanizeFetchError(e) }
+  }
 
   let data = null
   try {
@@ -84,7 +133,8 @@ export async function runMovieAnalysis(movieTitle) {
   } catch {
     return {
       ok: false,
-      error: 'The server returned an invalid response. Is the API running? For local dev use: npx vercel dev — or set VITE_ANTHROPIC_API_KEY in .env for dev only.',
+      error:
+        'THE SERVER SENT A NON-JSON RESPONSE (OFTEN A TIMEOUT OR GATEWAY ERROR). WAIT A BIT AND TRY AGAIN.',
     }
   }
 
